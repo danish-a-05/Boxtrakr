@@ -100,7 +100,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            Button(onClick = { /* TODO: Add category */ }, modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp), shape = RoundedCornerShape(15.dp)) {
+            Button(onClick = { showDialog = true }, modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp), shape = RoundedCornerShape(15.dp)) {
                 Text("+", fontWeight = FontWeight.Bold)
             }
 
