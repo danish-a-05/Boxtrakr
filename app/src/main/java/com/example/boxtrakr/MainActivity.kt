@@ -84,6 +84,9 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun CategoriesTab() {
         val categories = remember { mutableStateListOf("Work", "Personal", "Archived")}
+        var showDialog by remember { mutableStateOf(false) }
+        var newCategory by remember { mutableStateOf("")}
+        
         Box( modifier = Modifier.fillMaxSize().padding(16.dp)) {
 
             // Categories List
@@ -99,6 +102,42 @@ class MainActivity : ComponentActivity() {
 
             Button(onClick = { /* TODO: Add category */ }, modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp), shape = RoundedCornerShape(15.dp)) {
                 Text("+", fontWeight = FontWeight.Bold)
+            }
+
+            //Category Dialog for the add button
+            if (showDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDialog = false},
+                    title = {Text("Add New Category")},
+                    text = {
+                        Column {
+                            Text("Enter category name:")
+                            Spacer(modifier = Modifier.height(8.dp))
+                            TextField(
+                                value = newCategory,
+                                onValueChange = { newCategory = it },
+                                placeholder = { Text("Category name")}
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            if (newCategory.isNotBlank()) {
+                                categories.add(newCategory)
+                                newCategory = ""
+                            }
+                            showDialog = false
+                        }) {
+                            Text("Add", fontWeight = FontWeight.Bold)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDialog = false }) {
+                            Text("Cancel")
+                        }
+                    }
+
+                )
             }
         }
     }
