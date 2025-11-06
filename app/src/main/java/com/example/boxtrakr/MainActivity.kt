@@ -83,7 +83,20 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun CategoriesTab() {
+        val categories = remember { mutableStateListOf("Work", "Personal", "Archived")}
         Box( modifier = Modifier.fillMaxSize().padding(16.dp)) {
+
+            // Categories List
+            Column(modifier = Modifier.align(Alignment.TopStart)) {
+                categories.forEach { category->
+                    Text(
+                        text = category,
+                        modifier = Modifier.padding(8.dp),
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+
             Button(onClick = { /* TODO: Add category */ }, modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp), shape = RoundedCornerShape(15.dp)) {
                 Text("+", fontWeight = FontWeight.Bold)
             }
