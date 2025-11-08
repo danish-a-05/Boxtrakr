@@ -4,7 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.*
@@ -73,11 +76,35 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // Data model for boxes and categories
+    data class Box(val name: String)
+    data class Category(val name: String, val boxes: MutableList<Box> = mutableListOf())
+
+    // sampleCategories for the list
+    private val sampleCategories = mutableStateListOf(
+        Category("Work", mutableListOf(Box("Project A"), Box("Project B"))),
+        Category("Personal", mutableListOf(Box("Shoes Box"), Box("Old Tech")))
+    )
     @Composable
     fun AllBoxesTab() {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Text("Your Boxes will appear here", modifier = Modifier.padding(8.dp))
-            // Later: add a list of box cards
+        val categories = remember {sampleCategories}
+        val allBoxes = categories.flatMap {it.boxes}
+
+        if (allBoxes.isEmpty()) {
+            Text("No Boxes yet.", modifier = Modifier.padding(8.dp))
+        } else {
+            LazyColumn {
+                items(allBoxes) {box ->
+                    Text(
+                        text = box.name,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        fontWeight = FontWeight.Medium
+                    )
+                    HorizontalDivider()
+                }
+            }
         }
     }
 
@@ -86,17 +113,26 @@ class MainActivity : ComponentActivity() {
         val categories = remember { mutableStateListOf("Work", "Personal", "Archived")}
         var showDialog by remember { mutableStateOf(false) }
         var newCategory by remember { mutableStateOf("")}
-        
-        Box( modifier = Modifier.fillMaxSize().padding(16.dp)) {
 
-            // Categories List
-            Column(modifier = Modifier.align(Alignment.TopStart)) {
-                categories.forEach { category->
-                    Text(
-                        text = category,
-                        modifier = Modifier.padding(8.dp),
-                        fontWeight = FontWeight.Medium
-                    )
+        // Tracks which category is selected
+        var selectedCategory by remember {mutableStateOf<String?>(null)}
+
+        Box( modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            if (selectedCategory != null) {
+                CategoryDetailScreen(
+                    categoryName = selectedCategory!!,
+                    onBack = {selectedCategory = null}
+                )
+            } else {
+                // Categories List
+                Column(modifier = Modifier.align(Alignment.TopStart)) {
+                    categories.forEach { category ->
+                        Text(
+                            text = category,
+                            modifier = Modifier.padding(8.dp).clickable {selectedCategory = category},
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
             }
 
@@ -139,6 +175,28 @@ class MainActivity : ComponentActivity() {
 
                 )
             }
+
+        }
+    }
+
+    // Placeholder screen for inside a category
+    @Composable
+    fun CategoryDetailScreen(categoryName: String, onBack: () -> Unit) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Back",
+                modifier = Modifier
+                    .clickable { onBack() }
+                    .padding(bottom = 8.dp),
+                fontWeight = FontWeight.Bold
+            )
+            Text("Category: $categoryName", fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("This is where you'll add and view boxes for this category.")
         }
     }
 }
