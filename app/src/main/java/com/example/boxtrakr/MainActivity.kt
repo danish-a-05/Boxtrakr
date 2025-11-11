@@ -14,16 +14,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 
 class MainActivity : ComponentActivity() {
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
+            var searchText by remember {mutableStateOf("")}
             val categories = remember {sampleCategories}
             val allBoxes = remember { mutableStateListOf<Box>().apply {
                 addAll(categories.flatMap {it.boxes})
@@ -74,8 +77,8 @@ class MainActivity : ComponentActivity() {
 
                 // Tab content
                 when (selectedTab) {
-                    0 -> AllBoxesTab(searchText, allBoxes)
-                    1 -> CategoriesTab(categories, allBoxes)
+                    0 -> AllBoxesTab(searchText)
+                    1 -> CategoriesTab(allBoxes)
                 }
             }
         }
@@ -92,18 +95,23 @@ class MainActivity : ComponentActivity() {
         Category("Personal", mutableListOf(Box("Shoes Box"), Box("Old Tech")))
     )
     @Composable
-    fun AllBoxesTab(searchText: String, allBoxes: MutableList<Box>) {
+    fun AllBoxesTab(searchText : String) {
+        val categories = remember {sampleCategories}
+        val allBoxes = categories.flatMap {it.boxes}
 
-        val filteredBoxes = if (searchText.isBlank()) allBoxes else allBoxes.filter {
-            it.name.contains(searchText, ignoreCase = true)
+        val filteredBoxes = if(searchText.isBlank()) {
+            allBoxes
+        } else {
+            allBoxes.filter { it.name.contains(searchText, ignoreCase = true)}
         }
 
         if (filteredBoxes.isEmpty()) {
             Text("No Boxes yet.", modifier = Modifier.padding(8.dp))
         } else {
             LazyColumn {
-                items(filteredBoxes) { box ->
-                    Column(
+                items(filteredBoxes) {box ->
+                    Text(
+                        text = box.name,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
@@ -123,22 +131,25 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun CategoriesTab(
-        categories: MutableList<Category>, // shared list
-        allBoxes: MutableList<Box>        // shared all boxes list
+        allBoxes: MutableList<Box> // pass global box list
     ) {
+        val categories = remember { mutableStateListOf(
+            Category("Work"),
+            Category("Personal"),
+            Category("Archived"))
+        }
         var showDialog by remember { mutableStateOf(false) }
         var newCategory by remember { mutableStateOf("")}
 
-        var selectedCategory by remember { mutableStateOf<Category?>(null)}
+        // Tracks which category is selected
+        var selectedCategory by remember {mutableStateOf<Category?>(null)}
 
-        var showAddBoxDialog by remember { mutableStateOf(false)}
-        var newBoxName by remember { mutableStateOf("")}
-        val newBoxContents = remember { mutableStateListOf<BoxContent>()}
+        var showAddBoxDialog by remember {mutableStateOf(false)}
+        var newBoxName by remember {mutableStateOf("")}
+        val newBoxContents = remember {mutableStateListOf<BoxContent>()}
 
-        var contentName by remember { mutableStateOf("")}
-        var contentQuantity by remember { mutableStateOf("")}
-
-        Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        var contentName by remember {mutableStateOf("")}
+        var contentQuantity by remember {mutableStateOf("")}
 
             if (selectedCategory != null) {
                 Column(modifier = Modifier.fillMaxSize()) {
@@ -152,6 +163,8 @@ class MainActivity : ComponentActivity() {
                     Text("Category: ${selectedCategory!!.name}", fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(16.dp))
 
+
+                    // List boxes in the category
                     selectedCategory!!.boxes.forEach { box ->
                         Text("- ${box.name}", fontWeight = FontWeight.Medium)
                         box.contents.forEach { content ->
@@ -166,7 +179,7 @@ class MainActivity : ComponentActivity() {
                     categories.forEach { category ->
                         Text(
                             text = category.name,
-                            modifier = Modifier.padding(8.dp).clickable { selectedCategory = category },
+                            modifier = Modifier.padding(8.dp).clickable {selectedCategory = category},
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -175,7 +188,7 @@ class MainActivity : ComponentActivity() {
 
             Button(
                 onClick = {
-                    if (selectedCategory != null) {
+                    if(selectedCategory != null) {
                         showAddBoxDialog = true
                         newBoxName = ""
                         newBoxContents.clear()
@@ -183,40 +196,39 @@ class MainActivity : ComponentActivity() {
                         showDialog = true
                     }
                 },
-                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
-                shape = RoundedCornerShape(15.dp)
-            ) {
+                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp), shape = RoundedCornerShape(15.dp)) {
                 Text("+", fontWeight = FontWeight.Bold)
             }
 
-            // Add new box dialog
-            if (showAddBoxDialog) {
+            // Box dialog for the add button
+            if(showAddBoxDialog) {
                 AlertDialog(
                     onDismissRequest = { showAddBoxDialog = false },
-                    title = { Text("Add New Box") },
+                    title = {Text("Add New Box")},
                     text = {
                         Column {
                             Text("Box Name:")
                             TextField(
                                 value = newBoxName,
-                                onValueChange = { newBoxName = it },
+                                onValueChange = {newBoxName = it},
                                 placeholder = { Text("Box Name") }
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
                             Text("Add Content")
+
                             Row {
                                 TextField(
                                     value = contentName,
                                     onValueChange = { contentName = it },
-                                    placeholder = { Text("Content Name") },
+                                    placeholder = {Text("Content Name")},
                                     modifier = Modifier.weight(1f)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 TextField(
                                     value = contentQuantity,
-                                    onValueChange = { contentQuantity = it },
-                                    placeholder = { Text("Quantity") },
+                                    onValueChange = {contentQuantity = it},
+                                    placeholder = { Text("Quantity")},
                                     modifier = Modifier.width(80.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
@@ -234,7 +246,8 @@ class MainActivity : ComponentActivity() {
                             }
 
                             Spacer(modifier = Modifier.height(8.dp))
-                            newBoxContents.forEach { c ->
+                            // display the list of contents added
+                            newBoxContents.forEach {c ->
                                 Text("- ${c.name} x${c.quantity}")
                             }
                         }
@@ -243,8 +256,11 @@ class MainActivity : ComponentActivity() {
                         TextButton(onClick = {
                             if (newBoxName.isNotBlank()) {
                                 val newBox = Box(newBoxName, newBoxContents.toMutableList())
+                                // add the box to the category
                                 selectedCategory?.boxes?.add(newBox)
-                                allBoxes.add(0, newBox) // add to shared allBoxes
+                                // add box to global allBoxes list (for all boxes tab)
+                                allBoxes.add(0, newBox)
+
                                 newBoxName = ""
                                 newBoxContents.clear()
                             }
@@ -261,7 +277,7 @@ class MainActivity : ComponentActivity() {
                 )
             }
 
-            // Add new category dialog
+            //Category Dialog for the add button
             if (showDialog) {
                 AlertDialog(
                     onDismissRequest = { showDialog = false },
@@ -280,7 +296,7 @@ class MainActivity : ComponentActivity() {
                     confirmButton = {
                         TextButton(onClick = {
                             if (newCategory.isNotBlank()) {
-                                categories.add(Category(newCategory)) // update shared list
+                                categories.add(Category(newCategory))
                                 newCategory = ""
                             }
                             showDialog = false
