@@ -26,7 +26,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            var searchText by remember {mutableStateOf("")}
             val categories = remember {sampleCategories}
             val allBoxes = remember { mutableStateListOf<Box>().apply {
                 addAll(categories.flatMap {it.boxes})
@@ -77,8 +76,8 @@ class MainActivity : ComponentActivity() {
 
                 // Tab content
                 when (selectedTab) {
-                    0 -> AllBoxesTab(searchText)
-                    1 -> CategoriesTab(allBoxes)
+                    0 -> AllBoxesTab(searchText, allBoxes)
+                    1 -> CategoriesTab(categories, allBoxes)
                 }
             }
         }
@@ -95,23 +94,18 @@ class MainActivity : ComponentActivity() {
         Category("Personal", mutableListOf(Box("Shoes Box"), Box("Old Tech")))
     )
     @Composable
-    fun AllBoxesTab(searchText : String) {
-        val categories = remember {sampleCategories}
-        val allBoxes = categories.flatMap {it.boxes}
+    fun AllBoxesTab(searchText: String, allBoxes: MutableList<Box>) {
 
-        val filteredBoxes = if(searchText.isBlank()) {
-            allBoxes
-        } else {
-            allBoxes.filter { it.name.contains(searchText, ignoreCase = true)}
+        val filteredBoxes = if (searchText.isBlank()) allBoxes else allBoxes.filter {
+            it.name.contains(searchText, ignoreCase = true)
         }
 
         if (filteredBoxes.isEmpty()) {
             Text("No Boxes yet.", modifier = Modifier.padding(8.dp))
         } else {
             LazyColumn {
-                items(filteredBoxes) {box ->
-                    Text(
-                        text = box.name,
+                items(filteredBoxes) { box ->
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
@@ -131,25 +125,22 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun CategoriesTab(
-        allBoxes: MutableList<Box> // pass global box list
+        categories: MutableList<Category>, // shared list
+        allBoxes: MutableList<Box>        // shared all boxes list
     ) {
-        val categories = remember { mutableStateListOf(
-            Category("Work"),
-            Category("Personal"),
-            Category("Archived"))
-        }
         var showDialog by remember { mutableStateOf(false) }
         var newCategory by remember { mutableStateOf("")}
 
-        // Tracks which category is selected
-        var selectedCategory by remember {mutableStateOf<Category?>(null)}
+        var selectedCategory by remember { mutableStateOf<Category?>(null)}
 
-        var showAddBoxDialog by remember {mutableStateOf(false)}
-        var newBoxName by remember {mutableStateOf("")}
-        val newBoxContents = remember {mutableStateListOf<BoxContent>()}
+        var showAddBoxDialog by remember { mutableStateOf(false)}
+        var newBoxName by remember { mutableStateOf("")}
+        val newBoxContents = remember { mutableStateListOf<BoxContent>()}
 
-        var contentName by remember {mutableStateOf("")}
-        var contentQuantity by remember {mutableStateOf("")}
+        var contentName by remember { mutableStateOf("")}
+        var contentQuantity by remember { mutableStateOf("")}
+
+        Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
 
             if (selectedCategory != null) {
                 Column(modifier = Modifier.fillMaxSize()) {
@@ -163,8 +154,6 @@ class MainActivity : ComponentActivity() {
                     Text("Category: ${selectedCategory!!.name}", fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(16.dp))
 
-
-                    // List boxes in the category
                     selectedCategory!!.boxes.forEach { box ->
                         Text("- ${box.name}", fontWeight = FontWeight.Medium)
                         box.contents.forEach { content ->
@@ -179,7 +168,7 @@ class MainActivity : ComponentActivity() {
                     categories.forEach { category ->
                         Text(
                             text = category.name,
-                            modifier = Modifier.padding(8.dp).clickable {selectedCategory = category},
+                            modifier = Modifier.padding(8.dp).clickable { selectedCategory = category },
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -188,7 +177,7 @@ class MainActivity : ComponentActivity() {
 
             Button(
                 onClick = {
-                    if(selectedCategory != null) {
+                    if (selectedCategory != null) {
                         showAddBoxDialog = true
                         newBoxName = ""
                         newBoxContents.clear()
@@ -196,39 +185,40 @@ class MainActivity : ComponentActivity() {
                         showDialog = true
                     }
                 },
-                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp), shape = RoundedCornerShape(15.dp)) {
+                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+                shape = RoundedCornerShape(15.dp)
+            ) {
                 Text("+", fontWeight = FontWeight.Bold)
             }
 
-            // Box dialog for the add button
-            if(showAddBoxDialog) {
+            // Add new box dialog
+            if (showAddBoxDialog) {
                 AlertDialog(
                     onDismissRequest = { showAddBoxDialog = false },
-                    title = {Text("Add New Box")},
+                    title = { Text("Add New Box") },
                     text = {
                         Column {
                             Text("Box Name:")
                             TextField(
                                 value = newBoxName,
-                                onValueChange = {newBoxName = it},
+                                onValueChange = { newBoxName = it },
                                 placeholder = { Text("Box Name") }
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
                             Text("Add Content")
-
                             Row {
                                 TextField(
                                     value = contentName,
                                     onValueChange = { contentName = it },
-                                    placeholder = {Text("Content Name")},
+                                    placeholder = { Text("Content Name") },
                                     modifier = Modifier.weight(1f)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 TextField(
                                     value = contentQuantity,
-                                    onValueChange = {contentQuantity = it},
-                                    placeholder = { Text("Quantity")},
+                                    onValueChange = { contentQuantity = it },
+                                    placeholder = { Text("Quantity") },
                                     modifier = Modifier.width(80.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
@@ -246,8 +236,7 @@ class MainActivity : ComponentActivity() {
                             }
 
                             Spacer(modifier = Modifier.height(8.dp))
-                            // display the list of contents added
-                            newBoxContents.forEach {c ->
+                            newBoxContents.forEach { c ->
                                 Text("- ${c.name} x${c.quantity}")
                             }
                         }
@@ -256,11 +245,8 @@ class MainActivity : ComponentActivity() {
                         TextButton(onClick = {
                             if (newBoxName.isNotBlank()) {
                                 val newBox = Box(newBoxName, newBoxContents.toMutableList())
-                                // add the box to the category
                                 selectedCategory?.boxes?.add(newBox)
-                                // add box to global allBoxes list (for all boxes tab)
-                                allBoxes.add(0, newBox)
-
+                                allBoxes.add(0, newBox) // add to shared allBoxes
                                 newBoxName = ""
                                 newBoxContents.clear()
                             }
@@ -277,7 +263,7 @@ class MainActivity : ComponentActivity() {
                 )
             }
 
-            //Category Dialog for the add button
+            // Add new category dialog
             if (showDialog) {
                 AlertDialog(
                     onDismissRequest = { showDialog = false },
@@ -296,7 +282,7 @@ class MainActivity : ComponentActivity() {
                     confirmButton = {
                         TextButton(onClick = {
                             if (newCategory.isNotBlank()) {
-                                categories.add(Category(newCategory))
+                                categories.add(Category(newCategory)) // update shared list
                                 newCategory = ""
                             }
                             showDialog = false
@@ -312,27 +298,6 @@ class MainActivity : ComponentActivity() {
                 )
             }
 
-        }
-    }
-
-    // Placeholder screen for inside a category
-    @Composable
-    fun CategoryDetailScreen(categoryName: String, onBack: () -> Unit) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Back",
-                modifier = Modifier
-                    .clickable { onBack() }
-                    .padding(bottom = 8.dp),
-                fontWeight = FontWeight.Bold
-            )
-            Text("Category: $categoryName", fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("This is where you'll add and view boxes for this category.")
         }
     }
 }
