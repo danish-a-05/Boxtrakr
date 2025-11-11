@@ -114,9 +114,15 @@ class MainActivity : ComponentActivity() {
                         text = box.name,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp),
-                        fontWeight = FontWeight.Medium
-                    )
+                            .padding(8.dp)
+                    ) {
+                        Text(box.name, fontWeight = FontWeight.Bold)
+                        if (box.contents.isNotEmpty()) {
+                            box.contents.forEach { content ->
+                                Text("- ${content.name} x${content.quantity}")
+                            }
+                        }
+                    }
                     HorizontalDivider()
                 }
             }
@@ -145,7 +151,6 @@ class MainActivity : ComponentActivity() {
         var contentName by remember {mutableStateOf("")}
         var contentQuantity by remember {mutableStateOf("")}
 
-        Box( modifier = Modifier.fillMaxSize().padding(16.dp)) {
             if (selectedCategory != null) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     Text(
@@ -169,7 +174,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             } else {
-                // Categories List
+                // Categories list
                 Column(modifier = Modifier.align(Alignment.TopStart)) {
                     categories.forEach { category ->
                         Text(
@@ -275,8 +280,8 @@ class MainActivity : ComponentActivity() {
             //Category Dialog for the add button
             if (showDialog) {
                 AlertDialog(
-                    onDismissRequest = { showDialog = false},
-                    title = {Text("Add New Category")},
+                    onDismissRequest = { showDialog = false },
+                    title = { Text("Add New Category") },
                     text = {
                         Column {
                             Text("Enter category name:")
@@ -284,7 +289,7 @@ class MainActivity : ComponentActivity() {
                             TextField(
                                 value = newCategory,
                                 onValueChange = { newCategory = it },
-                                placeholder = { Text("Category name")}
+                                placeholder = { Text("Category name") }
                             )
                         }
                     },
@@ -304,7 +309,6 @@ class MainActivity : ComponentActivity() {
                             Text("Cancel")
                         }
                     }
-
                 )
             }
 
