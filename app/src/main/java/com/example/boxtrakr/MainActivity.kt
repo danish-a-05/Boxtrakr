@@ -21,10 +21,12 @@ import androidx.core.view.WindowCompat
 
 class MainActivity : ComponentActivity() {
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
+            var searchText by remember {mutableStateOf("")}
             val categories = remember {sampleCategories}
             val allBoxes = remember { mutableStateListOf<Box>().apply {
                 addAll(categories.flatMap {it.boxes})
@@ -75,7 +77,7 @@ class MainActivity : ComponentActivity() {
 
                 // Tab content
                 when (selectedTab) {
-                    0 -> AllBoxesTab()
+                    0 -> AllBoxesTab(searchText)
                     1 -> CategoriesTab(allBoxes)
                 }
             }
@@ -93,15 +95,21 @@ class MainActivity : ComponentActivity() {
         Category("Personal", mutableListOf(Box("Shoes Box"), Box("Old Tech")))
     )
     @Composable
-    fun AllBoxesTab() {
+    fun AllBoxesTab(searchText : String) {
         val categories = remember {sampleCategories}
         val allBoxes = categories.flatMap {it.boxes}
 
-        if (allBoxes.isEmpty()) {
+        val filteredBoxes = if(searchText.isBlank()) {
+            allBoxes
+        } else {
+            allBoxes.filter { it.name.contains(searchText, ignoreCase = true)}
+        }
+
+        if (filteredBoxes.isEmpty()) {
             Text("No Boxes yet.", modifier = Modifier.padding(8.dp))
         } else {
             LazyColumn {
-                items(allBoxes) {box ->
+                items(filteredBoxes) {box ->
                     Text(
                         text = box.name,
                         modifier = Modifier
