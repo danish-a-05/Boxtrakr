@@ -1,8 +1,5 @@
 package com.example.boxtrakr
 
-import android.R.attr.fontWeight
-import android.R.attr.onClick
-import android.R.attr.text
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -34,7 +31,17 @@ class MainActivity : ComponentActivity() {
                 addAll(categories.flatMap {it.boxes})
             }}
 
+            var selectedBox by remember { mutableStateOf<Box?>(null)}
+
             Column(modifier = Modifier.fillMaxSize().systemBarsPadding().padding(16.dp)) {
+
+                if(selectedBox != null){
+                    BoxDetailScreen(
+                        box = selectedBox!!,
+                        onBack = { selectedBox = null }
+                    )
+                    return@Column
+                }
 
                 // Search bar
                 var searchText by remember { mutableStateOf("") }
@@ -79,8 +86,10 @@ class MainActivity : ComponentActivity() {
 
                 // Tab content
                 when (selectedTab) {
-                    0 -> AllBoxesTab(searchText, allBoxes)
-                    1 -> CategoriesTab(categories, allBoxes)
+                    0 -> AllBoxesTab(searchText, allBoxes,
+                        onBoxClick = { box -> selectedBox = box})
+                    1 -> CategoriesTab(categories, allBoxes,
+                        onBoxClick = { box -> selectedBox = box})
                 }
             }
         }
@@ -159,7 +168,8 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-    
+
+
     // Data model for boxes and categories
     data class Box(val name: String, val contents: MutableList<BoxContent> = mutableListOf())
     data class BoxContent(val name: String, val quantity: Int)
@@ -171,7 +181,7 @@ class MainActivity : ComponentActivity() {
         Category("Personal", mutableListOf(Box("Shoes Box"), Box("Old Tech")))
     )
     @Composable
-    fun AllBoxesTab(searchText: String, allBoxes: MutableList<Box>) {
+    fun AllBoxesTab(searchText: String, allBoxes: MutableList<Box>, onBoxClick: (Box) -> Unit) {
 
         val filteredBoxes = if (searchText.isBlank()) allBoxes else allBoxes.filter {
             it.name.contains(searchText, ignoreCase = true)
@@ -186,12 +196,11 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
+                            .clickable{ onBoxClick(box) }
                     ) {
                         Text(box.name, fontWeight = FontWeight.Bold)
-                        if (box.contents.isNotEmpty()) {
-                            box.contents.forEach { content ->
-                                Text("- ${content.name} x${content.quantity}")
-                            }
+                        box.contents.forEach { c ->
+                            Text("- ${c.name} x${c.quantity}")
                         }
                     }
                     HorizontalDivider()
@@ -203,7 +212,8 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun CategoriesTab(
         categories: MutableList<Category>, // shared list
-        allBoxes: MutableList<Box>        // shared all boxes list
+        allBoxes: MutableList<Box>,      // shared all boxes list
+        onBoxClick: (Box) -> Unit
     ) {
         var showDialog by remember { mutableStateOf(false) }
         var newCategory by remember { mutableStateOf("")}
@@ -232,7 +242,11 @@ class MainActivity : ComponentActivity() {
                     Spacer(modifier = Modifier.height(16.dp))
 
                     selectedCategory!!.boxes.forEach { box ->
-                        Text("- ${box.name}", fontWeight = FontWeight.Medium)
+                        Text(
+                            "-${box.name}",
+                            modifier = Modifier.clickable{ onBoxClick(box)},
+                            fontWeight = FontWeight.Medium
+                        )
                         box.contents.forEach { content ->
                             Text("- ${content.name} x${content.quantity}")
                         }
