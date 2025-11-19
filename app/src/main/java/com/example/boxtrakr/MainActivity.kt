@@ -1,5 +1,6 @@
 package com.example.boxtrakr
 
+import android.R.attr.onClick
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -113,7 +114,7 @@ class MainActivity : ComponentActivity() {
 
             // Contents list
             box.contents.forEach { item ->
-                Text("- ${item.name} x$(item.quantity)")
+                Text("- ${item.name} x${item.quantity}")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -135,7 +136,7 @@ class MainActivity : ComponentActivity() {
                             TextField(
                                 value = newContentName,
                                 onValueChange = {newContentName = it },
-                                placeholder = {Text("item Name") }
+                                placeholder = {Text("Item Name") }
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             TextField(
