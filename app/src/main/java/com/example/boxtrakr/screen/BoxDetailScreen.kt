@@ -13,7 +13,11 @@ import com.example.boxtrakr.domain.Box
 import com.example.boxtrakr.domain.BoxContent
 
 @Composable
-fun BoxDetailScreen(box: Box, onBack: () -> Unit) {
+fun BoxDetailScreen(
+    box: Box,
+    onBack: () -> Unit,
+    onAddContent: (String, Int) -> Unit  // new callback: contentName, quantity
+) {
     var showAddContentDialog by remember { mutableStateOf(false) }
     var newContentName by remember { mutableStateOf("") }
     var newContentQty by remember { mutableStateOf("") }
@@ -61,8 +65,10 @@ fun BoxDetailScreen(box: Box, onBack: () -> Unit) {
                 },
                 confirmButton = {
                     TextButton(onClick = {
-                        if (newContentName.isNotBlank() && newContentQty.toIntOrNull() != null) {
-                            box.contents.add(BoxContent(newContentName, newContentQty.toInt()))
+                        val qty = newContentQty.toIntOrNull()
+                        if (newContentName.isNotBlank() && qty != null) {
+                            box.contents.add(BoxContent(newContentName, qty))
+                            onAddContent(newContentName, qty) // save to Room
                         }
                         newContentName = ""
                         newContentQty = ""
@@ -80,3 +86,4 @@ fun BoxDetailScreen(box: Box, onBack: () -> Unit) {
         }
     }
 }
+

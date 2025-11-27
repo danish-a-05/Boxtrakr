@@ -15,7 +15,10 @@ import com.example.boxtrakr.domain.*
 fun CategoriesScreen(
     categories: MutableList<Category>,
     allBoxes: MutableList<Box>,
-    onBoxClick: (Box) -> Unit
+    onBoxClick: (Box) -> Unit,
+    onAddCategory: (String) -> Unit,      // new callback
+    onAddBox: (String, String) -> Unit,    // new callback: categoryName, boxName
+    onAddBoxContent: (String, String, Int) -> Unit
 ) {
     var showDialog by remember { mutableStateOf(false) }
     var newCategory by remember { mutableStateOf("") }
@@ -24,9 +27,6 @@ fun CategoriesScreen(
     var showAddBoxDialog by remember { mutableStateOf(false) }
     var newBoxName by remember { mutableStateOf("") }
     val newBoxContents = remember { mutableStateListOf<BoxContent>() }
-
-    var contentName by remember { mutableStateOf("") }
-    var contentQuantity by remember { mutableStateOf("") }
 
     Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
 
@@ -68,11 +68,22 @@ fun CategoriesScreen(
                 showDialog = showAddBoxDialog,
                 onDismiss = { showAddBoxDialog = false },
                 onAdd = { box ->
+                    // Persist box first
+                    onAddBox(selectedCategory!!.name, box.name)
+
+                    // Persist the contents immediately
+                    box.contents.forEach { content ->
+                        onAddBoxContent(box.name, content.name, content.quantity)
+                    }
+
+                    // Add to local state so UI updates immediately
                     selectedCategory?.boxes?.add(box)
                     allBoxes.add(0, box)
+
                     showAddBoxDialog = false
                 }
             )
+
         }
 
         if (showDialog) {
@@ -81,6 +92,7 @@ fun CategoriesScreen(
                 onDismiss = { showDialog = false },
                 onAdd = { name ->
                     categories.add(Category(name))
+                    onAddCategory(name)  // save to Room
                     showDialog = false
                 }
             )
