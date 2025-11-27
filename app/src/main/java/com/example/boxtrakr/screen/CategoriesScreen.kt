@@ -2,100 +2,116 @@ package com.example.boxtrakr.screen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.boxtrakr.domain.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoriesScreen(
     categories: MutableList<Category>,
     allBoxes: MutableList<Box>,
     onBoxClick: (Box) -> Unit,
-    onAddCategory: (String) -> Unit,      // new callback
-    onAddBox: (String, String) -> Unit,    // new callback: categoryName, boxName
+    onAddCategory: (String) -> Unit,
+    onAddBox: (String, String) -> Unit,
     onAddBoxContent: (String, String, Int) -> Unit
 ) {
-    var showDialog by remember { mutableStateOf(false) }
-    var newCategory by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<Category?>(null) }
-
+    var showAddCatDialog by remember { mutableStateOf(false) }
     var showAddBoxDialog by remember { mutableStateOf(false) }
-    var newBoxName by remember { mutableStateOf("") }
-    val newBoxContents = remember { mutableStateListOf<BoxContent>() }
+    var newCategoryName by remember { mutableStateOf("") }
 
-    Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-
-        if (selectedCategory != null) {
-            CategoryDetailScreen(
-                category = selectedCategory!!,
-                onBack = { selectedCategory = null },
-                allBoxes = allBoxes,
-                onBoxClick = onBoxClick
+    Scaffold(
+        topBar = {
+            Text(
+                "Categories",
+                modifier = Modifier.padding(16.dp),
+                style = MaterialTheme.typography.titleLarge
             )
-        } else {
-            Column(modifier = Modifier.align(Alignment.TopStart)) {
-                categories.forEach { category ->
-                    Text(
-                        text = category.name,
-                        modifier = Modifier.padding(8.dp).clickable { selectedCategory = category },
-                        fontWeight = FontWeight.Medium
-                    )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    if (selectedCategory == null) showAddCatDialog = true
+                    else showAddBoxDialog = true
+                }
+            ) { Text("+") }
+        }
+    ) { inner ->
+        Box(Modifier.padding(inner).padding(16.dp)) {
+            if (selectedCategory != null) {
+                CategoryDetailScreen(
+                    category = selectedCategory!!,
+                    onBack = { selectedCategory = null },
+                    allBoxes = allBoxes,
+                    onBoxClick = onBoxClick
+                )
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    categories.forEach { category ->
+                        ElevatedCard(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { selectedCategory = category }
+                        ) {
+                            Text(
+                                category.name,
+                                modifier = Modifier.padding(16.dp),
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
                 }
             }
         }
+    }
 
-        FloatingActionButton(
-            onClick = {
-                if (selectedCategory != null) {
-                    showAddBoxDialog = true
-                    newBoxName = ""
-                    newBoxContents.clear()
-                } else {
-                    showDialog = true
-                }
+    if (showAddCatDialog) {
+        AlertDialog(
+            onDismissRequest = { showAddCatDialog = false },
+            title = { Text("New Category") },
+            text = {
+                OutlinedTextField(
+                    value = newCategoryName,
+                    onValueChange = { newCategoryName = it },
+                    label = { Text("Category Name") }
+                )
             },
-            shape = RoundedCornerShape(15.dp),
-            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
-        ) { Text("+", fontWeight = FontWeight.Bold) }
-
-        if (showAddBoxDialog) {
-            AddBoxDialog(
-                showDialog = showAddBoxDialog,
-                onDismiss = { showAddBoxDialog = false },
-                onAdd = { box ->
-                    // Persist box first
-                    onAddBox(selectedCategory!!.name, box.name)
-
-                    // Persist the contents immediately
-                    box.contents.forEach { content ->
-                        onAddBoxContent(box.name, content.name, content.quantity)
+            confirmButton = {
+                TextButton(onClick = {
+                    val name = newCategoryName.trim()
+                    if (name.isNotEmpty()) {
+                        categories.add(Category(name))
+                        onAddCategory(name)
                     }
-
-                    // Add to local state so UI updates immediately
-                    selectedCategory?.boxes?.add(box)
-                    allBoxes.add(0, box)
-
-                    showAddBoxDialog = false
+                    newCategoryName = ""
+                    showAddCatDialog = false
+                }) { Text("Add") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAddCatDialog = false }) {
+                    Text("Cancel")
                 }
-            )
+            }
+        )
+    }
 
-        }
-
-        if (showDialog) {
-            AddCategoryDialog(
-                showDialog = showDialog,
-                onDismiss = { showDialog = false },
-                onAdd = { name ->
-                    categories.add(Category(name))
-                    onAddCategory(name)  // save to Room
-                    showDialog = false
+    if (showAddBoxDialog) {
+        AddBoxDialog(
+            showDialog = showAddBoxDialog,
+            onDismiss = { showAddBoxDialog = false },
+            onAdd = { box ->
+                onAddBox(selectedCategory!!.name, box.name)
+                box.contents.forEach { content ->
+                    onAddBoxContent(box.name, content.name, content.quantity)
                 }
-            )
-        }
+                selectedCategory!!.boxes.add(box)
+                allBoxes.add(box)
+                showAddBoxDialog = false
+            }
+        )
     }
 }

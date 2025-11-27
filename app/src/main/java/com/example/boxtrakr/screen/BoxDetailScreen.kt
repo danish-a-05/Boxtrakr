@@ -1,89 +1,103 @@
 package com.example.boxtrakr.screen
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.boxtrakr.domain.Box
 import com.example.boxtrakr.domain.BoxContent
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BoxDetailScreen(
     box: Box,
     onBack: () -> Unit,
-    onAddContent: (String, Int) -> Unit  // new callback: contentName, quantity
+    onAddContent: (String, Int) -> Unit
 ) {
-    var showAddContentDialog by remember { mutableStateOf(false) }
-    var newContentName by remember { mutableStateOf("") }
-    var newContentQty by remember { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) }
+    var newName by remember { mutableStateOf("") }
+    var newQty by remember { mutableStateOf("") }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text(
-            "Back",
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.clickable { onBack() }
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        box.contents.forEach { item ->
-            Text("- ${item.name} x${item.quantity}")
+    Scaffold(
+        topBar = {
+            Column(Modifier.padding(16.dp)) {
+                Text(
+                    box.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                TextButton(onClick = onBack) {
+                    Text("Back")
+                }
+            }
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { showDialog = true }) {
+                Icon(Icons.Default.Add, contentDescription = "Add")
+            }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { showAddContentDialog = true },
-            shape = RoundedCornerShape(15.dp),
-            modifier = Modifier.align(Alignment.End)
+    ) { inner ->
+        LazyColumn(
+            modifier = Modifier
+                .padding(inner)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("+", fontWeight = FontWeight.Bold)
-        }
-
-        if (showAddContentDialog) {
-            AlertDialog(
-                onDismissRequest = { showAddContentDialog = false },
-                title = { Text("Add item to Box") },
-                text = {
-                    Column {
-                        TextField(
-                            value = newContentName,
-                            onValueChange = { newContentName = it },
-                            placeholder = { Text("Item Name") }
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        TextField(
-                            value = newContentQty,
-                            onValueChange = { newContentQty = it },
-                            placeholder = { Text("Qty") }
-                        )
-                    }
-                },
-                confirmButton = {
-                    TextButton(onClick = {
-                        val qty = newContentQty.toIntOrNull()
-                        if (newContentName.isNotBlank() && qty != null) {
-                            box.contents.add(BoxContent(newContentName, qty))
-                            onAddContent(newContentName, qty) // save to Room
-                        }
-                        newContentName = ""
-                        newContentQty = ""
-                        showAddContentDialog = false
-                    }) {
-                        Text("Add")
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showAddContentDialog = false }) {
-                        Text("Cancel")
+            items(box.contents) { item ->
+                ElevatedCard(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp)) {
+                        Text(item.name, fontWeight = FontWeight.Medium)
+                        Text("Quantity: ${item.quantity}")
                     }
                 }
-            )
+            }
         }
     }
-}
 
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("Add Item") },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = newName,
+                        onValueChange = { newName = it },
+                        label = { Text("Item Name") }
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = newQty,
+                        onValueChange = { newQty = it },
+                        label = { Text("Quantity") }
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    val q = newQty.toIntOrNull()
+                    if (newName.isNotBlank() && q != null) {
+                        box.contents.add(BoxContent(newName, q))
+                        onAddContent(newName, q)
+                    }
+                    newName = ""
+                    newQty = ""
+                    showDialog = false
+                }) {
+                    Text("Add")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+}
