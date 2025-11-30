@@ -17,4 +17,7 @@ interface BoxDao{
 
     @Insert
     suspend fun insert(box: BoxEntity)
+
+    @Query("SELECT * FROM boxes WHERE name = :name LIMIT 1")
+    suspend fun getByName(name: String): BoxEntity?
 }

@@ -11,8 +11,10 @@ import kotlinx.coroutines.launch
 class BoxViewModel(private val dao: BoxDao) : ViewModel() {
     val boxes: Flow<List<BoxEntity>> = dao.getAll()
 
-    fun addBox(name: String, categoryName: String) {
-        viewModelScope.launch { dao.insert(BoxEntity(name = name, categoryName = categoryName)) }
+    fun addBox(name: String, categoryName: String, isPrivate: Boolean = false, password: String? = null) {
+        viewModelScope.launch {
+            dao.insertBox(BoxEntity(name = name, categoryName = categoryName, isPrivate = isPrivate, password = password))
+        }
     }
 
     companion object {

@@ -7,5 +7,8 @@ import androidx.room.PrimaryKey
 data class BoxEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val name: String,
-    val categoryName: String
+    val categoryName: String,
+    // variables for password locked box
+    val isPrivate: Boolean = false,
+    val password: String? = null
 )

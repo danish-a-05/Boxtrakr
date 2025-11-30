@@ -20,6 +20,11 @@ fun AddBoxDialog(
     var contentName by remember { mutableStateOf("") }
     var contentQuantity by remember { mutableStateOf("") }
 
+    // NEW: Private box toggle and password
+    var isPrivate by remember { mutableStateOf(false) }
+    var password by remember { mutableStateOf("") }
+    var passwordError by remember { mutableStateOf("") }
+
     if (showDialog) {
         AlertDialog(
             onDismissRequest = onDismiss,
@@ -27,33 +32,77 @@ fun AddBoxDialog(
             text = {
                 Column {
                     Text("Box Name:")
+                    Spacer(modifier = Modifier.height(4.dp))
                     TextField(
                         value = newBoxName,
                         onValueChange = { newBoxName = it },
-                        placeholder = { Text("Box Name") }
+                        placeholder = { Text("Box Name") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Add Content")
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Private toggle
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Private box?")
+                        Switch(checked = isPrivate, onCheckedChange = {
+                            isPrivate = it
+                            if (!it) {
+                                // clear password when toggling off
+                                password = ""
+                                passwordError = ""
+                            }
+                        })
+                    }
+
+                    // Password input when private
+                    if (isPrivate) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = password,
+                            onValueChange = {
+                                password = it
+                                passwordError = ""
+                            },
+                            label = { Text("Password (min 6 chars)") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        if (passwordError.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(passwordError, color = MaterialTheme.colorScheme.error)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text("Add Content", fontWeight = FontWeight.Medium)
+                    Spacer(modifier = Modifier.height(6.dp))
+
                     Row {
                         TextField(
                             value = contentName,
                             onValueChange = { contentName = it },
                             placeholder = { Text("Content Name") },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            singleLine = true
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         TextField(
                             value = contentQuantity,
                             onValueChange = { contentQuantity = it },
-                            placeholder = { Text("Quantity") },
-                            modifier = Modifier.width(80.dp)
+                            placeholder = { Text("Qty") },
+                            modifier = Modifier.width(90.dp),
+                            singleLine = true
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Button(onClick = {
                             if (contentName.isNotBlank() && contentQuantity.toIntOrNull() != null) {
-                                newBoxContents.add(
-                                    BoxContent(contentName, contentQuantity.toInt())
-                                )
+                                newBoxContents.add(BoxContent(contentName, contentQuantity.toInt()))
                                 contentName = ""
                                 contentQuantity = ""
                             }
@@ -70,20 +119,38 @@ fun AddBoxDialog(
             },
             confirmButton = {
                 TextButton(onClick = {
-                    if (newBoxName.isNotBlank()) {
-                        val newBox = Box(newBoxName, newBoxContents.toMutableList())
-                        onAdd(newBox)
-                        newBoxName = ""
-                        newBoxContents.clear()
+                    // Validation
+                    if (newBoxName.isBlank()) return@TextButton
+
+                    if (isPrivate) {
+                        if (password.length < 6) {
+                            passwordError = "Password must be at least 6 characters"
+                            return@TextButton
+                        }
                     }
+
+                    // Create domain Box (with privacy fields)
+                    val newBox = Box(
+                        name = newBoxName,
+                        contents = newBoxContents.toMutableList(),
+                        isPrivate = isPrivate,
+                        password = if (isPrivate) password else null
+                    )
+
+                    onAdd(newBox)
+
+                    // Clear UI state
+                    newBoxName = ""
+                    newBoxContents.clear()
+                    isPrivate = false
+                    password = ""
+                    passwordError = ""
                 }) {
                     Text("Finish", fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = onDismiss) {
-                    Text("Cancel")
-                }
+                TextButton(onClick = onDismiss) { Text("Cancel") }
             }
         )
     }

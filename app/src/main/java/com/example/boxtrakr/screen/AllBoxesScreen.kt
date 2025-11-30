@@ -57,11 +57,17 @@ fun AllBoxesScreen(
                             .fillMaxWidth()
                             .clickable { onBoxClick(box) }
                     ) {
-                        Text(
-                            text = box.name,
-                            modifier = Modifier.padding(16.dp),
-                            fontWeight = FontWeight.Bold
-                        )
+                        Column(Modifier.padding(16.dp)) {
+                            Text(
+                                text = box.name,
+                                fontWeight = FontWeight.Bold
+                            )
+                            // subtext for private boxes
+                            if (box.isPrivate) {
+                                Spacer(Modifier.height(4.dp))
+                                Text("Private box — locked", style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
                     }
                 }
             }

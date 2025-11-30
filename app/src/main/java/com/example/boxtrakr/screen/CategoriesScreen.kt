@@ -16,7 +16,8 @@ fun CategoriesScreen(
     allBoxes: MutableList<Box>,
     onBoxClick: (Box) -> Unit,
     onAddCategory: (String) -> Unit,
-    onAddBox: (String, String) -> Unit,
+    // onAddBox now accepts categoryName and domain Box (keeps same app-level behaviour)
+    onAddBox: (String, Box) -> Unit,
     onAddBoxContent: (String, String, Int) -> Unit
 ) {
     var selectedCategory by remember { mutableStateOf<Category?>(null) }
@@ -69,6 +70,7 @@ fun CategoriesScreen(
         }
     }
 
+    // Add Category Dialog
     if (showAddCatDialog) {
         AlertDialog(
             onDismissRequest = { showAddCatDialog = false },
@@ -99,17 +101,26 @@ fun CategoriesScreen(
         )
     }
 
-    if (showAddBoxDialog) {
+    // Add Box Dialog (uses onAdd returning a domain Box)
+    if (showAddBoxDialog && selectedCategory != null) {
         AddBoxDialog(
             showDialog = showAddBoxDialog,
             onDismiss = { showAddBoxDialog = false },
             onAdd = { box ->
-                onAddBox(selectedCategory!!.name, box.name)
+                val categoryName = selectedCategory!!.name
+
+                // Persist via the app-level callback
+                onAddBox(categoryName, box)
+
+                // Add to local state (domain)
+                selectedCategory!!.boxes.add(box)
+                allBoxes.add(box)
+
+                // Persist contents as separate DB records using onAddBoxContent
                 box.contents.forEach { content ->
                     onAddBoxContent(box.name, content.name, content.quantity)
                 }
-                selectedCategory!!.boxes.add(box)
-                allBoxes.add(box)
+
                 showAddBoxDialog = false
             }
         )

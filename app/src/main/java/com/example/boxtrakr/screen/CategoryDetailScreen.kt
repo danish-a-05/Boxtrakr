@@ -53,12 +53,21 @@ fun CategoryDetailScreen(
                             .clickable { onBoxClick(box) }
                     ) {
                         Column(Modifier.padding(16.dp)) {
-                            // Box name only (as you requested)
+                            // Box name
                             Text(
                                 text = box.name,
                                 fontWeight = FontWeight.SemiBold,
                                 style = MaterialTheme.typography.titleMedium
                             )
+
+                            // subtext when box is private
+                            if (box.isPrivate) {
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Private box — locked",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
                         }
                     }
                 }
