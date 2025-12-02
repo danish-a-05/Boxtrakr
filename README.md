@@ -1,96 +1,52 @@
-# Smart Box-Tracker App  
-**Group 19 – MSD Project**  
-**Module:** Mobile Software Development  
-**Team Members:**  
-- Danish Arifuzzaman  
-- Shane Farrelly  
+# BoxTrakr
 
----
+A clean and intuitive Android app for organising items into boxes and categories.
 
-## Main Concept  
-The Smart Box-Tracker App is an Android application that helps users organize, categorize, and manage physical storage boxes.  
-Users can easily record boxes, track their contents, and find where specific items are stored.  
+## 📦 Overview
+**BoxTrakr** is an Android inventory-management app built with **Kotlin**, **Jetpack Compose**, and **Room**.  
+It allows users to create **categories**, add **boxes** within each category, and store **items** inside those boxes — making it easy to keep track of belongings, storage units, moving boxes, or collections.
 
-Each box record includes:  
-- A name  
-- A thumbnail image of the box  
-- A list of items with their names and quantities  
+## 🚀 Features
+- **Create, edit, and delete categories**  
+- **Add boxes** associated with categories
+- **Private boxes** that can be locked with either user made passwords or fingerprints
+- **NEW Picture Support** take a picture of your box's location so you never forget where it is
+- **Add and edit box contents**  
+- **Dedicated screen for viewing box details** with:  
+  - Box name as the page header  
+  - Lazy-loaded list of items  
+- **Responsive UI** built using Jetpack Compose  
+- **Local data persistence** with Room + Kotlin coroutines  
+- **MVVM architecture** using ViewModels and repositories  
+- **Smooth navigation** powered by Navigation Compose  
+- **Fully offline** (no external APIs required)
 
----
+## 🛠️ Tech Stack
+- **Kotlin**  
+- **Jetpack Compose**  
+- **Room Database**  
+- **ViewModel / StateFlow / LiveData**  
+- **Navigation Compose**  
+- **Coroutines & Flows**
 
-## Main Features  
 
-### All Boxes Tab  
-Displays all boxes in a card-style layout, featuring:  
-- Thumbnail image (photo of the box)  
-- Box name  
+## 📷 Screenshots
+*(To be added)*
 
-Additional functions:  
-- Boxes are sorted by most recently viewed, with the latest at the top.  
-- Long press on a box card to:  
-  - Edit box details (name, thumbnail, or contents)  
-  - Delete a box  
-  - Multi-select multiple boxes for batch actions (delete or categorize)
+## 📄 How It Works
+BoxTrakr stores all data locally.  
+When users create a category, they can then add boxes under it.  
+Selecting a box opens a detailed view showing all stored items using a lazy list for performance.  
+All operations update the Room database instantly.
 
----
+## 🧩 What I Learned
+- Building composable UIs with Jetpack Compose  
+- Managing state and navigation in multi-screen apps  
+- Designing scalable local persistence with Room  
+- Applying MVVM architecture in a real Android project
 
-### Categories Tab  
-Functions like an “Add Room” feature, allowing users to:  
-- Create custom categories (e.g., Bedroom Closet, Garage, Attic)  
-- Add or remove boxes from categories via multi-selection  
-- Quickly view all boxes within a specific category  
-
----
-
-## Search Functionality  
-- A search bar at the top of the interface enables fast lookup.  
-- Searches across all boxes and items for any keyword (case-insensitive).  
-- Dynamic results appear as users type, helping locate boxes or items instantly.
-
----
-
-## Sensors Used  
-
-### Camera Sensor  
-- Used to capture thumbnail photos for each box.  
-- Helps users visually identify boxes.  
-- Accessed securely via the system camera intent, with permissions managed properly.
-
-### Fingerprint Sensor  
-- On supported devices, users can unlock the app or secure sections using fingerprint authentication.  
-- If unavailable, a PIN or password fallback is provided for security.
-
----
-
-## Data Management  
-- All app data (boxes, items, categories, photos, timestamps) is stored locally using the Room Database.  
-- State management ensures:  
-  - User data persists between sessions  
-  - UI state (like sorting preferences and selected tabs) remains consistent after restarts  
-
----
-
-## Tech Stack  
-- Platform: Android (Java / Kotlin)  
-- Database: Room Database  
-- UI: Android Jetpack Components  
-- Authentication: Biometric / PIN Security  
-- Architecture: MVVM (Mutable Live Data + ViewModel)  
-
----
-
-## Future Enhancements  
-- Cloud sync and backup  
-- Notifications for box reminders or updates  
-- Barcode/QR code scanning for faster box entry  
-
----
-
-## Summary  
-The Smart Box-Tracker App offers a simple yet powerful way to manage physical storage.  
-By combining categorization, image tracking, biometric security, and local data persistence,  
-it makes organization intuitive, secure, and efficient for everyday users.
-
----
-
-Developed by Group 19 — TU Dublin MSD Project 2025.
+## ✔️ Future Improvements
+~~- Fingerprint/PIN protected private boxes~~
+~~- Image support for boxes/items~~
+- MultiLanguage support
+- Dark Mode
