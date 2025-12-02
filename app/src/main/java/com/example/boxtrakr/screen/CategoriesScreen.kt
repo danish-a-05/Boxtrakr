@@ -81,32 +81,16 @@ fun CategoriesScreen(
     }
 
     // Add Category Dialog
+    // Add Category Dialog
     if (showAddCatDialog) {
-        AlertDialog(
-            onDismissRequest = { showAddCatDialog = false },
-            title = { Text(stringResource(R.string.new_category)) },
-            text = {
-                OutlinedTextField(
-                    value = newCategoryName,
-                    onValueChange = { newCategoryName = it },
-                    label = { Text(stringResource(R.string.category_name)) }
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    val name = newCategoryName.trim()
-                    if (name.isNotEmpty()) {
-                        categories.add(Category(name))
-                        onAddCategory(name)
-                    }
-                    newCategoryName = ""
-                    showAddCatDialog = false
-                }) { Text(stringResource(R.string.add)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showAddCatDialog = false }) {
-                    Text(stringResource(R.string.cancel))
-                }
+        AddCategoryDialog(
+            showDialog = showAddCatDialog,
+            onDismiss = { showAddCatDialog = false },
+            onAdd = { name ->
+                val newCat = Category(name)
+                categories.add(newCat)
+                onAddCategory(name)
+                showAddCatDialog = false
             }
         )
     }
