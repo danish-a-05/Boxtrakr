@@ -10,5 +10,7 @@ data class BoxEntity(
     val categoryName: String,
     // variables for password locked box
     val isPrivate: Boolean = false,
-    val password: String? = null
+    val password: String? = null,
+    // persistent path to the thumbnail image file (stored in internal storage)
+    val imagePath: String? = null
 )

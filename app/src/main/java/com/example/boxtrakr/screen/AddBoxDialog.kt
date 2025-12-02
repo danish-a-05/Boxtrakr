@@ -9,6 +9,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.boxtrakr.domain.Box
 import com.example.boxtrakr.domain.BoxContent
+// for camera composable
+import android.content.Intent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import androidx.activity.compose.rememberLauncherForActivityResult
+import android.app.Activity
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+
 
 @Composable
 fun AddBoxDialog(
@@ -26,6 +35,51 @@ fun AddBoxDialog(
     var password by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf("") }
 
+    val context = LocalContext.current
+
+    // launcher to start CameraActivity and get returned image path
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val imagePath = result.data?.getStringExtra("resultImagePath")
+            // After camera returns with imagePath (user kept the photo), create the box and call onAdd
+            val newBox = Box(
+                name = newBoxName,
+                contents = newBoxContents.toMutableList(),
+                isPrivate = isPrivate,
+                password = if (isPrivate) password else null,
+                imagePath = imagePath
+            )
+
+            // Clear UI state
+            newBoxName = ""
+            newBoxContents.clear()
+            isPrivate = false
+            password = ""
+            passwordError = ""
+
+            onAdd(newBox)
+        } else {
+            // user cancelled camera — create box without image (still persist values)
+            val newBox = Box(
+                name = newBoxName,
+                contents = newBoxContents.toMutableList(),
+                isPrivate = isPrivate,
+                password = if (isPrivate) password else null,
+                imagePath = null
+            )
+
+            // Clear UI state
+            newBoxName = ""
+            newBoxContents.clear()
+            isPrivate = false
+            password = ""
+            passwordError = ""
+
+            onAdd(newBox)
+        }
+    }
     if (showDialog) {
         AlertDialog(
             onDismissRequest = onDismiss,
@@ -136,22 +190,8 @@ fun AddBoxDialog(
                         }
                     }
 
-                    // Create domain Box (with privacy fields)
-                    val newBox = Box(
-                        name = newBoxName,
-                        contents = newBoxContents.toMutableList(),
-                        isPrivate = isPrivate,
-                        password = if (isPrivate) password else null
-                    )
-
-                    // Clear UI state
-                    newBoxName = ""
-                    newBoxContents.clear()
-                    isPrivate = false
-                    password = ""
-                    passwordError = ""
-
-                    onAdd(newBox)
+                    val intent = Intent(context, CameraActivity::class.java)
+                    cameraLauncher.launch(intent)
 
                 }) {
                     Text("Finish", fontWeight = FontWeight.Bold)

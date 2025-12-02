@@ -61,5 +61,12 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
     implementation("androidx.compose.material:material-icons-extended:1.6.0")
-    implementation("androidx.biometric:biometric:1.1.0")
+    implementation("androidx.biometric:biometric:1.2.0-alpha05")
+    implementation("androidx.camera:camera-core:1.2.3")
+
+    // for camera
+    implementation("androidx.camera:camera-camera2:1.2.3")
+    implementation("androidx.camera:camera-lifecycle:1.2.3")
+    implementation("androidx.camera:camera-view:1.2.3")
+    implementation("androidx.appcompat:appcompat:1.7.0")
 }

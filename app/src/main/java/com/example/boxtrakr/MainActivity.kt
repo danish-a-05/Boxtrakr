@@ -2,6 +2,7 @@ package com.example.boxtrakr
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
@@ -18,6 +19,9 @@ import com.example.boxtrakr.screen.*
 import androidx.compose.runtime.collectAsState
 import kotlinx.coroutines.launch
 import androidx.biometric.BiometricPrompt
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 // for the fingerprint feature to work
 import androidx.fragment.app.FragmentActivity
@@ -80,7 +84,7 @@ class MainActivity : FragmentActivity() {
             fun addBox(categoryName: String, box: Box) {
                 scope.launch {
                     // insert box entity (name, categoryName, isPrivate, password)
-                    boxVm.addBox(box.name, categoryName, box.isPrivate, box.password)
+                    boxVm.addBox(box.name, categoryName, box.isPrivate, box.password, box.imagePath)
                 }
             }
 
@@ -203,13 +207,14 @@ class MainActivity : FragmentActivity() {
                     .map { BoxContent(it.name, it.quantity) }
                     .toMutableList()
 
-                // NEW: include isPrivate and password in domain Box
+                // include isPrivate and password in domain Box
                 cat.boxes.add(
                     Box(
                         name = boxEntity.name,
                         contents = boxContents,
                         isPrivate = boxEntity.isPrivate,
-                        password = boxEntity.password
+                        password = boxEntity.password,
+                        imagePath = boxEntity.imagePath
                     )
                 )
             }
@@ -217,43 +222,43 @@ class MainActivity : FragmentActivity() {
 
         return categoryMap.values.toMutableList().ifEmpty { sampleCategories }
     }
+}
 
-    fun launchFingerprintAuth(
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit = {},
-        onFail: () -> Unit = {}
-    ) {
-        val executor = ContextCompat.getMainExecutor(this)
+fun FragmentActivity.launchFingerprintAuth(
+    onSuccess: () -> Unit,
+    onError: (String) -> Unit = {},
+    onFail: () -> Unit = {}
+) {
+    val executor = ContextCompat.getMainExecutor(this)
 
-        val biometricPrompt = BiometricPrompt(
-            this,
-            executor,
-            object : BiometricPrompt.AuthenticationCallback() {
+    val biometricPrompt = BiometricPrompt(
+        this,
+        executor,
+        object : BiometricPrompt.AuthenticationCallback() {
 
-                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                    super.onAuthenticationSucceeded(result)
-                    onSuccess()
-                }
-
-                override fun onAuthenticationFailed() {
-                    super.onAuthenticationFailed()
-                    onFail()
-                }
-
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    super.onAuthenticationError(errorCode, errString)
-                    onError(errString.toString())
-                }
+            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                super.onAuthenticationSucceeded(result)
+                onSuccess()
             }
-        )
 
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Unlock with Fingerprint")
-            .setSubtitle("Authenticate to access this box")
-            .setNegativeButtonText("Cancel")
-            .setConfirmationRequired(false)
-            .build()
+            override fun onAuthenticationFailed() {
+                super.onAuthenticationFailed()
+                onFail()
+            }
 
-        biometricPrompt.authenticate(promptInfo)
-    }
+            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                super.onAuthenticationError(errorCode, errString)
+                onError(errString.toString())
+            }
+        }
+    )
+
+    val promptInfo = BiometricPrompt.PromptInfo.Builder()
+        .setTitle("Unlock with Fingerprint")
+        .setSubtitle("Authenticate to access this box")
+        .setNegativeButtonText("Cancel")
+        .setConfirmationRequired(false)
+        .build()
+
+    biometricPrompt.authenticate(promptInfo)
 }
