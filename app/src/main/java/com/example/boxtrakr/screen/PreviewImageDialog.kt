@@ -7,6 +7,7 @@ import android.widget.ImageView
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.view.ViewGroup.LayoutParams
+import com.example.boxtrakr.R
 
 class PreviewImageDialog(
     private val ctx: Context,
@@ -29,8 +30,8 @@ class PreviewImageDialog(
 
         val dialog = AlertDialog.Builder(ctx)
             .setView(container)
-            .setPositiveButton("Keep") { _, _ -> onDecision(true) }
-            .setNegativeButton("Retake") { _, _ -> onDecision(false) }
+            .setPositiveButton(ctx.getString(R.string.ok)) { _, _ -> onDecision(true) }
+            .setNegativeButton(ctx.getString(R.string.cancel)) { _, _ -> onDecision(false) }
             .setOnCancelListener { onDecision(false) } // treat cancel as retake
             .create()
 

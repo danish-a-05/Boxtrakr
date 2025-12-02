@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.boxtrakr.domain.Box
@@ -17,7 +18,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import android.app.Activity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-
+import com.example.boxtrakr.R
 
 @Composable
 fun AddBoxDialog(
@@ -36,6 +37,9 @@ fun AddBoxDialog(
     var passwordError by remember { mutableStateOf("") }
 
     val context = LocalContext.current
+
+    // Store the password error message in a local variable
+    val passwordErrorMsg = stringResource(R.string.password_error)
 
     // launcher to start CameraActivity and get returned image path
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -80,32 +84,33 @@ fun AddBoxDialog(
             onAdd(newBox)
         }
     }
+
     if (showDialog) {
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text("Add New Box") },
+            title = { Text(stringResource(R.string.add_new_box)) },
             text = {
                 Column {
-                    Text("Box Name:")
+                    Text(stringResource(R.string.box_name))
                     Spacer(modifier = Modifier.height(4.dp))
                     TextField(
                         value = newBoxName,
                         onValueChange = { newBoxName = it },
-                        placeholder = { Text("Box Name") },
+                        placeholder = { Text(stringResource(R.string.box_name)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Text("Add Content", fontWeight = FontWeight.Medium)
+                    Text(stringResource(R.string.add_content), fontWeight = FontWeight.Medium)
                     Spacer(modifier = Modifier.height(6.dp))
 
                     Column {
                         TextField(
                             value = contentName,
                             onValueChange = { contentName = it },
-                            placeholder = { Text("Content Name") },
+                            placeholder = { Text(stringResource(R.string.content_name)) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )
@@ -117,7 +122,7 @@ fun AddBoxDialog(
                             TextField(
                                 value = contentQuantity,
                                 onValueChange = { contentQuantity = it },
-                                placeholder = { Text("Qty") },
+                                placeholder = { Text(stringResource(R.string.quantity)) },
                                 modifier = Modifier.width(110.dp),
                                 singleLine = true
                             )
@@ -129,7 +134,7 @@ fun AddBoxDialog(
                                     contentQuantity = ""
                                 }
                             }) {
-                                Text("Add Content")
+                                Text(stringResource(R.string.add_content_button))
                             }
                         }
                     }
@@ -142,7 +147,7 @@ fun AddBoxDialog(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Private box?")
+                        Text(stringResource(R.string.private_box))
                         Switch(checked = isPrivate, onCheckedChange = {
                             isPrivate = it
                             if (!it) {
@@ -162,7 +167,7 @@ fun AddBoxDialog(
                                 password = it
                                 passwordError = ""
                             },
-                            label = { Text("Password (min 6 chars)") },
+                            label = { Text(stringResource(R.string.password_hint)) },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -185,7 +190,7 @@ fun AddBoxDialog(
 
                     if (isPrivate) {
                         if (password.length < 6) {
-                            passwordError = "Password must be at least 6 characters"
+                            passwordError = passwordErrorMsg
                             return@TextButton
                         }
                     }
@@ -194,11 +199,11 @@ fun AddBoxDialog(
                     cameraLauncher.launch(intent)
 
                 }) {
-                    Text("Finish", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.finish), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = onDismiss) { Text("Cancel") }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
             }
         )
     }

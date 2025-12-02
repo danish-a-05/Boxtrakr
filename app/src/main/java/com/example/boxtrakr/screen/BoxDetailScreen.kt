@@ -15,11 +15,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.boxtrakr.domain.Box
 import com.example.boxtrakr.domain.BoxContent
 import java.io.File
+import com.example.boxtrakr.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,13 +43,13 @@ fun BoxDetailScreen(
                     fontWeight = FontWeight.Bold
                 )
                 TextButton(onClick = onBack) {
-                    Text("Back")
+                    Text(stringResource(R.string.back))
                 }
             }
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { showDialog = true }) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add))
             }
         }
     ) { inner ->
@@ -72,7 +74,7 @@ fun BoxDetailScreen(
                         ) {
                             Image(
                                 bitmap = bitmap.asImageBitmap(),
-                                contentDescription = "Box image",
+                                contentDescription = stringResource(R.string.box_image),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(180.dp)
@@ -87,7 +89,7 @@ fun BoxDetailScreen(
                 ElevatedCard(Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(16.dp)) {
                         Text(item.name, fontWeight = FontWeight.Medium)
-                        Text("Quantity: ${item.quantity}")
+                        Text(stringResource(R.string.quantity_full) + ": ${item.quantity}")
                     }
                 }
             }
@@ -97,19 +99,19 @@ fun BoxDetailScreen(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Add Item") },
+            title = { Text(stringResource(R.string.add_item)) },
             text = {
                 Column {
                     OutlinedTextField(
                         value = newName,
                         onValueChange = { newName = it },
-                        label = { Text("Item Name") }
+                        label = { Text(stringResource(R.string.item_name)) }
                     )
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         value = newQty,
                         onValueChange = { newQty = it },
-                        label = { Text("Quantity") }
+                        label = { Text(stringResource(R.string.quantity_full)) }
                     )
                 }
             },
@@ -124,12 +126,12 @@ fun BoxDetailScreen(
                     newQty = ""
                     showDialog = false
                 }) {
-                    Text("Add")
+                    Text(stringResource(R.string.add))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )

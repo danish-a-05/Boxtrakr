@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -28,6 +29,7 @@ import com.example.boxtrakr.domain.Category
 import java.io.File
 import android.graphics.BitmapFactory
 import kotlin.math.roundToInt
+import com.example.boxtrakr.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,7 +52,7 @@ fun CategoryDetailScreen(
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                     Text(
                         text = categoryState.name,
@@ -72,7 +74,7 @@ fun CategoryDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("No boxes in this category.")
+                    Text(stringResource(R.string.no_boxes_in_category))
                 }
             } else {
                 categoryState.boxes.forEach { box ->
@@ -134,7 +136,7 @@ fun SwipeToDeleteCategoryBoxItem(
         ) {
             Icon(
                 Icons.Default.Delete,
-                contentDescription = "Delete",
+                contentDescription = stringResource(R.string.delete),
                 tint = Color.White,
                 modifier = Modifier.size(24.dp)
             )
@@ -196,7 +198,7 @@ fun SwipeToDeleteCategoryBoxItem(
                     if (bmp != null) {
                         Image(
                             bitmap = bmp.asImageBitmap(),
-                            contentDescription = "Box thumbnail",
+                            contentDescription = stringResource(R.string.box_thumbnail),
                             modifier = Modifier
                                 .size(56.dp)
                                 .clip(RoundedCornerShape(6.dp)),
@@ -218,7 +220,7 @@ fun SwipeToDeleteCategoryBoxItem(
                     if (box.isPrivate) {
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            text = "Private box — locked",
+                            text = stringResource(R.string.private_box_locked),
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
@@ -228,7 +230,7 @@ fun SwipeToDeleteCategoryBoxItem(
                 if (offsetX == 0f) {
                     Icon(
                         Icons.Default.Delete,
-                        contentDescription = "Swipe to delete",
+                        contentDescription = stringResource(R.string.swipe_to_delete),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                         modifier = Modifier.size(20.dp)
                     )

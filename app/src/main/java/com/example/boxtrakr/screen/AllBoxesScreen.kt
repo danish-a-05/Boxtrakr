@@ -1,7 +1,6 @@
 package com.example.boxtrakr.screen
 
 import android.graphics.BitmapFactory
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -22,14 +21,17 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.example.boxtrakr.R
 import com.example.boxtrakr.domain.Box
 import java.io.File
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import kotlin.math.roundToInt
+import androidx.compose.foundation.Image
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,14 +52,14 @@ fun AllBoxesScreen(
                 modifier = Modifier.padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("All Boxes", style = MaterialTheme.typography.titleLarge)
+                Text(stringResource(R.string.all_boxes), style = MaterialTheme.typography.titleLarge)
                 Spacer(Modifier.height(8.dp))
 
                 OutlinedTextField(
                     value = searchText,
                     onValueChange = { searchText = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Search boxes") },
+                    placeholder = { Text(stringResource(R.string.search_boxes)) },
                     singleLine = true
                 )
             }
@@ -74,7 +76,7 @@ fun AllBoxesScreen(
                     .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text("No boxes available.")
+                Text(stringResource(R.string.no_boxes_available))
             }
         } else {
             LazyColumn(
@@ -132,7 +134,7 @@ fun SwipeToDeleteBoxItem(
         ) {
             Icon(
                 Icons.Default.Delete,
-                contentDescription = "Delete",
+                contentDescription = stringResource(R.string.delete),
                 tint = Color.White,
                 modifier = Modifier.size(24.dp)
             )
@@ -212,7 +214,7 @@ fun SwipeToDeleteBoxItem(
                     )
                     if (box.isPrivate) {
                         Spacer(Modifier.height(4.dp))
-                        Text("Private box — locked", style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.private_box_locked), style = MaterialTheme.typography.bodySmall)
                     }
                 }
 
@@ -220,7 +222,7 @@ fun SwipeToDeleteBoxItem(
                 if (offsetX == 0f) {
                     Icon(
                         Icons.Default.Delete,
-                        contentDescription = "Swipe to delete",
+                        contentDescription = stringResource(R.string.swipe_to_delete),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                         modifier = Modifier.size(20.dp)
                     )

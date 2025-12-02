@@ -4,6 +4,7 @@ import androidx.compose.material3.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -11,6 +12,7 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import com.example.boxtrakr.domain.Box
+import com.example.boxtrakr.R
 
 @Composable
 fun LockAuthDialog(
@@ -23,6 +25,11 @@ fun LockAuthDialog(
     var error by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
 
+    // Store string resources in local variables
+    val incorrectPasswordMsg = stringResource(R.string.incorrect_password)
+    val hidePasswordMsg = stringResource(R.string.hide_password)
+    val showPasswordMsg = stringResource(R.string.show_password)
+
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
@@ -30,24 +37,24 @@ fun LockAuthDialog(
                 if (box.password == enteredPassword) {
                     onSuccess()
                 } else {
-                    error = "Incorrect password"
+                    error = incorrectPasswordMsg
                 }
             }) {
-                Text("Unlock")
+                Text(stringResource(R.string.unlock))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         },
-        title = { Text("Enter Password") },
+        title = { Text(stringResource(R.string.enter_password)) },
         text = {
             Column {
                 OutlinedTextField(
                     value = enteredPassword,
                     onValueChange = { enteredPassword = it },
-                    label = { Text("Password") },
+                    label = { Text(stringResource(R.string.password)) },
                     singleLine = true,
                     visualTransformation = if (showPassword)
                         VisualTransformation.None
@@ -62,9 +69,9 @@ fun LockAuthDialog(
                                 else
                                     Icons.Filled.Visibility,
                                 contentDescription = if (showPassword)
-                                    "Hide password"
+                                    hidePasswordMsg
                                 else
-                                    "Show password"
+                                    showPasswordMsg
                             )
                         }
                     }
@@ -80,7 +87,7 @@ fun LockAuthDialog(
                     onClick = onFingerprintRequest,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Use fingerprint instead")
+                    Text(stringResource(R.string.use_fingerprint))
                 }
             }
         }

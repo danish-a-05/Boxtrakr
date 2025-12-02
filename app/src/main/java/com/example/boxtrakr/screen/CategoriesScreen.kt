@@ -8,9 +8,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.boxtrakr.domain.*
+import com.example.boxtrakr.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -19,7 +21,6 @@ fun CategoriesScreen(
     allBoxes: MutableList<Box>,
     onBoxClick: (Box) -> Unit,
     onAddCategory: (String) -> Unit,
-    // onAddBox now accepts categoryName and domain Box
     onAddBox: (String, Box) -> Unit,
     onAddBoxContent: (String, String, Int) -> Unit
 ) {
@@ -37,7 +38,7 @@ fun CategoriesScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    "Categories",
+                    stringResource(R.string.categories),
                     style = MaterialTheme.typography.titleLarge
                 )
             }
@@ -48,7 +49,7 @@ fun CategoriesScreen(
                     if (selectedCategory == null) showAddCatDialog = true
                     else showAddBoxDialog = true
                 }
-            ) { Icon(Icons.Default.Add, contentDescription = "Add") }
+            ) { Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add)) }
         }
     ) { inner ->
         Box(Modifier.padding(inner).padding(16.dp)) {
@@ -83,12 +84,12 @@ fun CategoriesScreen(
     if (showAddCatDialog) {
         AlertDialog(
             onDismissRequest = { showAddCatDialog = false },
-            title = { Text("New Category") },
+            title = { Text(stringResource(R.string.new_category)) },
             text = {
                 OutlinedTextField(
                     value = newCategoryName,
                     onValueChange = { newCategoryName = it },
-                    label = { Text("Category Name") }
+                    label = { Text(stringResource(R.string.category_name)) }
                 )
             },
             confirmButton = {
@@ -100,11 +101,11 @@ fun CategoriesScreen(
                     }
                     newCategoryName = ""
                     showAddCatDialog = false
-                }) { Text("Add") }
+                }) { Text(stringResource(R.string.add)) }
             },
             dismissButton = {
                 TextButton(onClick = { showAddCatDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )

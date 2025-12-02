@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import com.example.boxtrakr.R
 
 class CameraActivity : FragmentActivity() {
 
@@ -68,12 +69,12 @@ class CameraActivity : FragmentActivity() {
             shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
                 // show rationale then request
                 AlertDialog.Builder(this)
-                    .setTitle("Camera permission required")
-                    .setMessage("Camera access is required to take a photo for the box thumbnail.")
-                    .setPositiveButton("OK") { _, _ ->
+                    .setTitle(getString(R.string.camera_permission_required))
+                    .setMessage(getString(R.string.camera_permission_message))
+                    .setPositiveButton(getString(R.string.ok)) { _, _ ->
                         requestPermissionLauncher.launch(Manifest.permission.CAMERA)
                     }
-                    .setNegativeButton("Cancel") { _, _ -> finish() }
+                    .setNegativeButton(getString(R.string.cancel)) { _, _ -> finish() }
                     .show()
             }
             else -> {
